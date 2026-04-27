@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Açai Rei - Pedidos Online</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- TELA DE LOGIN (Oculta inicialmente) -->
+    <div id="loginScreen" class="login-container show">
+        <div class="login-box">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23FF6B35'/%3E%3Ctext x='50' y='60' font-size='50' font-weight='bold' fill='white' text-anchor='middle'%3EAR%3C/text%3E%3C/svg%3E" alt="Logo" class="login-logo">
+            <h1>Açai Rei</h1>
+            <p>Painel de Gestão</p>
+            
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label>Usuário:</label>
+                    <input type="text" id="usuario" placeholder="Digite seu usuário" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Senha:</label>
+                    <input type="password" id="senha" placeholder="Digite sua senha" required>
+                </div>
+                
+                <button type="submit" class="btn-login">Entrar</button>
+                <p id="loginError" class="error-message"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- ÁREA PÚBLICA (Cliente) -->
+    <div id="publicArea" class="public-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23FF6B35'/%3E%3Ctext x='50' y='60' font-size='50' font-weight='bold' fill='white' text-anchor='middle'%3EAR%3C/text%3E%3C/svg%3E" alt="Logo">
+                    <h1>Açai Rei</h1>
+                </div>
+                <button id="carrinhoBtnPublic" class="carrinho-btn">
+                    🛒 Carrinho (<span id="carrinhoCount">0</span>)
+                </button>
+            </div>
+        </header>
+
+        <!-- Menu de Produtos -->
+        <main class="menu-container">
+            <h2>Nosso Cardápio</h2>
+            <div id="menuLista" class="menu-grid"></div>
+        </main>
+
+        <!-- Modal Carrinho -->
+        <div id="carrinhoModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Seu Carrinho</h2>
+                <div id="carrinhoItens" class="carrinho-itens"></div>
+                <div class="carrinho-resumo">
+                    <p>Subtotal: R$ <span id="subtotal">0.00</span></p>
+                    <p>Taxa de Entrega: R$ <span id="taxaEntrega">0.00</span></p>
+                    <h3>Total: R$ <span id="totalFinal">0.00</span></h3>
+                </div>
+                <button id="checkoutBtn" class="btn-checkout">Ir para Checkout</button>
+            </div>
+        </div>
+
+        <!-- Modal de Detalhes do Produto -->
+        <div id="produtoModal" class="modal">
+            <div class="modal-content produto-modal">
+                <span class="close">&times;</span>
+                <h2 id="produtoNome"></h2>
+                <p id="produtoDescricao"></p>
+                <p id="produtoPreco"></p>
+                
+                <div class="opcoes-tamanho">
+                    <h4>Tamanho:</h4>
+                    <div id="tamanhos" class="tamanho-grid"></div>
+                </div>
+
+                <div class="opcoes-complementos">
+                    <h4>Complementos:</h4>
+                    <div id="complementos" class="complementos-list"></div>
+                </div>
+
+                <button id="adicionarAoCarrinhoBtn" class="btn-adicionar">Adicionar ao Carrinho</button>
+            </div>
+        </div>
+
+        <!-- Modal Checkout -->
+        <div id="checkoutModal" class="modal">
+            <div class="modal-content checkout-modal">
+                <span class="close">&times;</span>
+                <h2>Finalize seu Pedido</h2>
+                
+                <form id="checkoutForm" class="checkout-form">
+                    <h3>Tipo de Entrega</h3>
+                    <div class="form-group">
+                        <label>
+                            <input type="radio" name="tipoEntrega" value="entrega" checked> Entrega
+                        </label>
+                        <label>
+                            <input type="radio" name="tipoEntrega" value="retirada"> Retirada
+                        </label>
+                    </div>
+
+                    <h3>Seus Dados</h3>
+                    <div class="form-group">
+                        <label>Nome: *</label>
+                        <input type="text" id="nomeCliente" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Telefone: *</label>
+                        <input type="tel" id="telefoneCliente" required>
+                    </div>
+
+                    <div id="enderecoSection">
+                        <h3>Endereço</h3>
+                        <div class="form-group">
+                            <label>Endereço: *</label>
+                            <input type="text" id="endereco" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Número: *</label>
+                                <input type="text" id="numero" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Complemento:</label>
+                                <input type="text" id="complementoEndereco">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Bairro: *</label>
+                            <select id="bairro" required>
+                                <option value="">Selecione um bairro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Ponto de Referência:</label>
+                            <input type="text" id="pontoRef">
+                        </div>
+                    </div>
+
+                    <h3>Forma de Pagamento</h3>
+                    <div id="formasPagamento" class="formas-pagamento"></div>
+
+                    <button type="submit" class="btn-finalizar">Finalizar Pedido</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ÁREA ADMINISTRATIVA -->
+    <div id="adminArea" class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23FF6B35'/%3E%3Ctext x='50' y='60' font-size='50' font-weight='bold' fill='white' text-anchor='middle'%3EAR%3C/text%3E%3C/svg%3E" alt="Logo">
+                <h2>Açai Rei</h2>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-section="pedidos">📦 Pedidos</button>
+                <button class="nav-btn" data-section="cardapio">🍽️ Cardápio</button>
+                <button class="nav-btn" data-section="entregas">🚚 Entregas</button>
+                <button class="nav-btn" data-section="vendas">📊 Vendas+</button>
+                <button class="nav-btn" data-section="configuracoes">⚙️ Configurações</button>
+                <button class="nav-btn logout-btn" id="logoutBtn">🚪 Sair</button>
+            </nav>
+        </aside>
+
+        <!-- Conteúdo Principal -->
+        <main class="admin-content">
+            <!-- SEÇÃO: PEDIDOS -->
+            <section id="pedidosSection" class="admin-section show">
+                <h2>Gerenciamento de Pedidos</h2>
+                <div class="pedidos-filtros">
+                    <button class="filtro-btn active" data-filtro="pendente">Pendentes</button>
+                    <button class="filtro-btn" data-filtro="despachado">Despachados</button>
+                    <button class="filtro-btn" data-filtro="concluido">Concluídos</button>
+                </div>
+                <div id="pedidosLista" class="pedidos-lista"></div>
+            </section>
+
+            <!-- SEÇÃO: CARDÁPIO -->
+            <section id="cardapioSection" class="admin-section">
+                <h2>Gerenciamento de Cardápio</h2>
+                <button id="btnAdicionarProduto" class="btn-primary">+ Adicionar Produto</button>
+                <div id="cardapioLista" class="cardapio-lista"></div>
+
+                <!-- Modal Adicionar/Editar Produto -->
+                <div id="produtoFormModal" class="modal">
+                    <div class="modal-content produto-form-modal">
+                        <span class="close">&times;</span>
+                        <h2 id="produtoFormTitulo">Adicionar Produto</h2>
+                        
+                        <form id="produtoForm" class="form-produto">
+                            <div class="form-group">
+                                <label>Nome do Produto: *</label>
+                                <input type="text" id="formProdutoNome" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Descrição:</label>
+                                <textarea id="formProdutoDescricao"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Preço Base: *</label>
+                                <input type="number" id="formProdutoPreco" step="0.01" required>
+                            </div>
+
+                            <h4>Tamanhos</h4>
+                            <div id="tamanhosList" class="tamanhos-list"></div>
+                            <button type="button" id="btnAdicionarTamanho" class="btn-secondary">+ Adicionar Tamanho</button>
+
+                            <h4>Complementos</h4>
+                            <div id="complementosList" class="complementos-list-admin"></div>
+                            <button type="button" id="btnAdicionarComplemento" class="btn-secondary">+ Adicionar Complemento</button>
+
+                            <button type="submit" class="btn-primary">Salvar Produto</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO: ENTREGAS -->
+            <section id="entregasSection" class="admin-section">
+                <h2>Configurar Taxas de Entrega por Bairro</h2>
+                <button id="btnAdicionarBairro" class="btn-primary">+ Adicionar Bairro</button>
+                <div id="bairrosList" class="bairros-lista"></div>
+
+                <!-- Modal Adicionar Bairro -->
+                <div id="bairroFormModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h2>Adicionar Bairro</h2>
+                        
+                        <form id="bairroForm" class="form-bairro">
+                            <div class="form-group">
+                                <label>Nome do Bairro: *</label>
+                                <input type="text" id="formBairroNome" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Taxa de Entrega: *</label>
+                                <input type="number" id="formBairroTaxa" step="0.01" required>
+                            </div>
+
+                            <button type="submit" class="btn-primary">Salvar Bairro</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO: VENDAS -->
+            <section id="vendasSection" class="admin-section">
+                <h2>Relatório de Vendas</h2>
+                <div class="vendas-filtros">
+                    <label>De:</label>
+                    <input type="date" id="dataInicio">
+                    <label>Até:</label>
+                    <input type="date" id="dataFim">
+                    <button id="btnFiltrarVendas" class="btn-primary">Filtrar</button>
+                </div>
+
+                <div id="vendasResumo" class="vendas-resumo">
+                    <div class="card">
+                        <h4>Total de Vendas</h4>
+                        <p class="valor">R$ <span id="totalVendas">0.00</span></p>
+                    </div>
+                    <div class="card">
+                        <h4>Total de Pedidos</h4>
+                        <p class="valor"><span id="totalPedidos">0</span></p>
+                    </div>
+                    <div class="card">
+                        <h4>Ticket Médio</h4>
+                        <p class="valor">R$ <span id="ticketMedio">0.00</span></p>
+                    </div>
+                </div>
+
+                <h3>Produtos Mais Vendidos</h3>
+                <div id="produtosMaisVendidos" class="tabela-vendas"></div>
+            </section>
+
+            <!-- SEÇÃO: CONFIGURAÇÕES -->
+            <section id="configuracoes" class="admin-section">
+                <div class="config-tabs">
+                    <button class="config-tab-btn active" data-tab="pagamentos">💳 Pagamentos</button>
+                    <button class="config-tab-btn" data-tab="impressao">🖨️ Impressão</button>
+                    <button class="config-tab-btn" data-tab="desenvolvimento">🔧 Desenvolvimento</button>
+                </div>
+
+                <!-- Tab: Pagamentos -->
+                <div id="pagamentosTab" class="config-tab show">
+                    <h3>Formas de Pagamento</h3>
+                    
+                    <div class="forma-pagamento">
+                        <h4>💰 Dinheiro / Pagar na Entrega</h4>
+                        <label>
+                            <input type="checkbox" class="forma-check" data-forma="pagar_entrega" checked>
+                            Ativar
+                        </label>
+                    </div>
+
+                    <div class="forma-pagamento">
+                        <h4>💳 Cartão de Débito</h4>
+                        <label>
+                            <input type="checkbox" class="forma-check" data-forma="debito">
+                            Ativar
+                        </label>
+                    </div>
+
+                    <div class="forma-pagamento">
+                        <h4>💳 Cartão de Crédito</h4>
+                        <label>
+                            <input type="checkbox" class="forma-check" data-forma="credito">
+                            Ativar
+                        </label>
+                    </div>
+
+                    <div class="forma-pagamento">
+                        <h4>🏷️ Vale Alimentação</h4>
+                        <label>
+                            <input type="checkbox" class="forma-check" data-forma="vale">
+                            Ativar
+                        </label>
+                    </div>
+
+                    <div class="forma-pagamento">
+                        <h4>📱 PIX</h4>
+                        <label>
+                            <input type="checkbox" class="forma-check" data-forma="pix" checked>
+                            Ativar
+                        </label>
+                        <div id="pixConfig" class="pix-config">
+                            <label>Chave PIX:</label>
+                            <input type="text" id="pixChave" placeholder="Ex: 123.456.789-00 ou seu email">
+                            <button id="btnSalvarPix" class="btn-primary">Salvar PIX</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Impressão -->
+                <div id="impressaoTab" class="config-tab">
+                    <h3>Configurações de Impressão</h3>
+                    
+                    <h4>Configurações Gerais</h4>
+                    <div class="config-item">
+                        <label>
+                            <input type="checkbox" id="aprovacaoAutomatica">
+                            Aprovar pedidos automaticamente
+                        </label>
+                    </div>
+                    <div class="config-item">
+                        <label>
+                            <input type="checkbox" id="impressaoAutomatica">
+                            Imprimir pedidos automaticamente
+                        </label>
+                    </div>
+                    <div class="config-item" id="momentoImpressaoDiv" style="display:none;">
+                        <label>Imprimir quando:</label>
+                        <select id="momentoImpressao">
+                            <option value="aprovacao">Na aprovação do pedido</option>
+                            <option value="recebimento">No recebimento do pedido</option>
+                        </select>
+                    </div>
+
+                    <h4>Suas Impressoras</h4>
+                    <button id="btnAdicionarImpressora" class="btn-primary">+ Adicionar Impressora</button>
+                    <div id="impressorasList" class="impressoras-lista"></div>
+
+                    <!-- Modal Adicionar Impressora -->
+                    <div id="impressoraFormModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close">&times;</span>
+                            <h2>Adicionar Impressora</h2>
+                            
+                            <form id="impressoraForm" class="form-impressora">
+                                <div class="form-group">
+                                    <label>Nome da Impressora:</label>
+                                    <select id="formImpressoraDispositivo" required>
+                                        <option value="">Selecione uma impressora conectada</option>
+                                    </select>
+                                    <button type="button" id="btnAtualizarDispositivos" class="btn-secondary">Atualizar Lista</button>
+                                </div>
+
+                                <h4>Configurações Padrão</h4>
+                                <div class="form-group">
+                                    <label>Tipo de Corte:</label>
+                                    <select id="formTipoCorte">
+                                        <option value="completo">Corte Completo</option>
+                                        <option value="parcial">Corte Parcial</option>
+                                        <option value="nenhum">Nenhum</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Largura da Bobina (mm):</label>
+                                    <input type="number" id="formLarguraBobina" value="80">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Caracteres por Linha:</label>
+                                    <input type="number" id="formCaracteresPorLinha" value="41">
+                                </div>
+
+                                <button type="submit" class="btn-primary">Adicionar Impressora</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Desenvolvimento -->
+                <div id="desenvolvimentoTab" class="config-tab">
+                    <h3>🔧 Em Desenvolvimento</h3>
+                    <p>Novas funcionalidades em breve!</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+    <script src="script.js"></script>
+</body>
+  </html>
