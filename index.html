@@ -1,432 +1,636 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Açai Rei - Pedidos Online</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Açaí Rei 👑</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --acai:#5B0FA8;--acai-l:#8B35CC;--acai-d:#3A0870;
+  --gold:#F5C842;--creme:#FEF8FF;--text:#1A0030;--muted:#7B6890;--pink:#E8B4F0;
+  --r:18px;--shadow:0 4px 24px rgba(91,15,168,.1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Sora',sans-serif;background:var(--creme);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── HERO ─────────────────────────────────────────── */
+.hero{
+  background:linear-gradient(155deg,#2D0842 0%,#5B0FA8 55%,#9B35D0 100%);
+  padding:56px 24px 72px;text-align:center;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(245,200,66,.18) 0%,transparent 65%);
+}
+.hero-c{position:relative;z-index:1}
+.crown{font-size:54px;display:block;animation:float 3s ease-in-out infinite;margin-bottom:8px}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(3rem,10vw,5rem);font-weight:900;color:#fff;line-height:1;letter-spacing:-1px}
+.hero h1 em{color:var(--gold);font-style:normal;display:block}
+.hero-sub{color:var(--pink);font-size:.88rem;letter-spacing:2px;text-transform:uppercase;font-weight:300;margin-top:10px}
+.chips{display:flex;justify-content:center;gap:8px;margin-top:22px;flex-wrap:wrap}
+.chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 14px;border-radius:100px;font-size:.79rem;font-weight:500;backdrop-filter:blur(8px)}
+
+/* ── BODY ─────────────────────────────────────────── */
+.store-body{background:var(--creme);border-radius:28px 28px 0 0;margin-top:-24px;padding:26px 18px 130px;min-height:60vh}
+.search{width:100%;padding:13px 18px;border:2px solid #E8D5F5;border-radius:13px;font-family:'Sora',sans-serif;font-size:.92rem;color:var(--text);background:#fff;outline:none;margin-bottom:18px;transition:border-color .2s,box-shadow .2s}
+.search:focus{border-color:var(--acai);box-shadow:0 0 0 4px rgba(91,15,168,.08)}
+
+/* ── CATEGORIAS ───────────────────────────────────── */
+.cats{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin-bottom:22px}
+.cats::-webkit-scrollbar{display:none}
+.catb{background:#fff;border:2px solid #E8D5F5;color:var(--acai);padding:7px 16px;border-radius:100px;font-family:'Sora',sans-serif;font-size:.81rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s}
+.catb.on,.catb:hover{background:var(--acai);border-color:var(--acai);color:#fff}
+
+/* ── SEÇÃO ────────────────────────────────────────── */
+.sec-title{font-family:'Playfair Display',serif;font-size:1.45rem;font-weight:700;color:var(--acai-d);margin-bottom:12px;margin-top:4px}
+
+/* ── CARDS PRODUTO ────────────────────────────────── */
+.pgrid{display:flex;flex-direction:column;gap:11px;margin-bottom:26px}
+.pcard{background:#fff;border-radius:var(--r);padding:15px;display:flex;gap:13px;align-items:center;box-shadow:var(--shadow);cursor:pointer;transition:transform .2s,box-shadow .2s;border:1px solid rgba(91,15,168,.06)}
+.pcard:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(91,15,168,.16)}
+.pemoji{width:64px;height:64px;flex-shrink:0;background:linear-gradient(135deg,#F0E0FF,#E0C8FF);border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:2.3rem}
+.pinfo{flex:1;min-width:0}
+.pname{font-weight:700;font-size:.95rem;margin-bottom:3px}
+.pdesc{font-size:.78rem;color:var(--muted);margin-bottom:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pfoot{display:flex;align-items:center;justify-content:space-between}
+.pprice{font-weight:800;font-size:.98rem;color:var(--acai)}
+.addb{background:var(--acai);color:#fff;border:none;width:35px;height:35px;border-radius:10px;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .15s;line-height:1}
+.addb:hover{background:var(--acai-d);transform:scale(1.08)}
+.addb:active{transform:scale(.94)}
+
+/* ── BARRA CARRINHO ───────────────────────────────── */
+.cbar{position:fixed;bottom:0;left:0;right:0;background:var(--gold);padding:13px 18px;display:flex;align-items:center;gap:11px;box-shadow:0 -4px 30px rgba(0,0,0,.2);z-index:100;transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.cbar.on{transform:translateY(0)}
+.cbar-i{display:flex;flex-direction:column;flex:1}
+.ccount{font-weight:800;font-size:.97rem;color:var(--acai-d)}
+.clabel{font-size:.73rem;color:var(--acai-d);opacity:.7}
+.ctotal{font-weight:800;font-size:.97rem;color:var(--acai-d)}
+.ccta{background:var(--acai-d);color:#fff;border:none;padding:11px 18px;border-radius:11px;font-family:'Sora',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;white-space:nowrap}
+
+/* ── OVERLAY / MODAL ──────────────────────────────── */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:flex-end;backdrop-filter:blur(4px)}
+.ov.on{display:flex}
+.panel{background:#fff;border-radius:28px 28px 0 0;padding:22px 18px 38px;width:100%;max-height:92vh;overflow-y:auto;animation:sup .3s cubic-bezier(.34,1.2,.64,1)}
+@keyframes sup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.mhead h2{font-family:'Playfair Display',serif;font-size:1.38rem}
+.xbtn{background:#F0E8FF;border:none;width:33px;height:33px;border-radius:50%;font-size:1rem;cursor:pointer;color:var(--acai);font-weight:700}
+
+/* ── ITENS CARRINHO ───────────────────────────────── */
+.ci{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #F0E8FF}
+.ci-info{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.ci-name{font-weight:700;font-size:.91rem}
+.ci-sub{font-size:.76rem;color:var(--muted)}
+.ci-right{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.qm{display:flex;align-items:center;gap:5px;background:#F3E8FF;border-radius:8px;padding:4px 7px}
+.qm button{background:none;border:none;color:var(--acai);font-weight:700;font-size:1rem;cursor:pointer;width:20px;text-align:center}
+.qm span{font-weight:700;color:var(--acai);min-width:16px;text-align:center;font-size:.91rem}
+.ci-price{font-weight:800;color:var(--acai);font-size:.91rem;min-width:68px;text-align:right}
+.cempty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:46px 0;color:#C0A8D0;gap:8px}
+.cempty span{font-size:3rem}
+.cempty p{font-weight:600;font-size:.95rem}
+
+/* ── FORMULÁRIO CHECKOUT ──────────────────────────── */
+.divl{height:1px;background:#F0E8FF;margin:14px 0}
+.ftit{font-size:.79rem;font-weight:700;color:var(--acai);text-transform:uppercase;letter-spacing:1px;margin:13px 0 7px}
+.drow{display:flex;gap:8px;margin-bottom:7px}
+.db{flex:1;padding:9px;border:2px solid #E8D5F5;background:#fff;border-radius:11px;font-family:'Sora',sans-serif;font-weight:600;font-size:.86rem;cursor:pointer;color:var(--muted);transition:all .2s}
+.db.on{border-color:var(--acai);background:var(--acai);color:#fff}
+.fi{width:100%;border:2px solid #E8D5F5;border-radius:11px;padding:11px 13px;font-family:'Sora',sans-serif;font-size:.89rem;color:var(--text);outline:none;margin-bottom:7px;transition:border-color .2s}
+.fi:focus{border-color:var(--acai)}
+.frow{display:flex;gap:7px}
+.paygrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}
+.po{background:#fff;border:2px solid #E8D5F5;border-radius:11px;padding:9px;font-family:'Sora',sans-serif;font-size:.81rem;font-weight:600;cursor:pointer;color:var(--muted);transition:all .2s;text-align:center}
+.po.on{border-color:var(--acai);background:#F3E8FF;color:var(--acai)}
+.pixbox{background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:11px;padding:11px 13px;margin-bottom:7px}
+.pixbox p{font-size:.8rem;color:#166534}
+.pixbox strong{font-size:.97rem;color:#166534}
+.summ{background:#F9F0FF;border-radius:13px;padding:13px;margin:14px 0 7px}
+.srow{display:flex;justify-content:space-between;padding:4px 0;font-size:.88rem;color:var(--muted)}
+.srow.tot{border-top:1.5px solid #DCC8F0;margin-top:7px;padding-top:7px;font-weight:800;font-size:1.03rem;color:var(--acai)}
+.subbtn{width:100%;background:var(--acai);color:#fff;border:none;padding:15px;border-radius:13px;font-family:'Sora',sans-serif;font-size:.97rem;font-weight:700;cursor:pointer;margin-top:4px;transition:opacity .2s}
+.subbtn:hover{opacity:.92}
+.subbtn:active{transform:scale(.98)}
+.onote{text-align:center;font-size:.76rem;color:var(--muted);margin-top:7px}
+
+/* ── ITEM MODAL ───────────────────────────────────── */
+.ipanel{padding:0;overflow:hidden}
+.xabs{position:absolute;top:14px;right:14px;z-index:10;background:rgba(255,255,255,.88);border:none;width:33px;height:33px;border-radius:50%;font-size:.97rem;cursor:pointer;font-weight:700;color:var(--text)}
+.ihero{font-size:5rem;text-align:center;padding:28px 0 14px;background:linear-gradient(135deg,#F3E0FF,#E8D5FF)}
+.idet{padding:18px 18px 38px;position:relative}
+.iname{font-family:'Playfair Display',serif;font-size:1.45rem;font-weight:700;margin-bottom:5px}
+.idesc{font-size:.83rem;color:var(--muted);margin-bottom:14px;line-height:1.5}
+.otit{font-size:.79rem;font-weight:700;color:var(--acai);text-transform:uppercase;letter-spacing:1px;margin:13px 0 7px}
+.req{color:#E53E3E}
+.optlab{color:var(--muted);font-weight:400;font-size:.76rem}
+.szlist,.adlist{display:flex;flex-direction:column;gap:5px}
+.szopt,.adopt{display:flex;align-items:center;gap:9px;padding:9px 13px;border:2px solid #E8D5F5;border-radius:11px;cursor:pointer;transition:all .2s}
+.szopt:has(input:checked),.adopt:has(input:checked){border-color:var(--acai);background:#F3E8FF}
+.szopt input,.adopt input{accent-color:var(--acai);flex-shrink:0}
+.orow{display:flex;justify-content:space-between;flex:1;font-size:.88rem;font-weight:500}
+.oprice{color:var(--acai);font-weight:700;font-size:.83rem}
+.ghint{font-size:.76rem;color:var(--muted);margin-bottom:5px}
+.iqrow{display:flex;align-items:center;gap:11px;margin-top:18px}
+.qctrl{display:flex;align-items:center;gap:9px;background:#F3E8FF;border-radius:11px;padding:8px 13px}
+.qctrl button{background:none;border:none;color:var(--acai);font-weight:800;font-size:1.2rem;cursor:pointer;width:26px;text-align:center}
+.qctrl span{font-weight:800;color:var(--acai);font-size:1.08rem;min-width:22px;text-align:center}
+.acbtn{flex:1;background:var(--acai);color:#fff;border:none;padding:13px;border-radius:13px;font-family:'Sora',sans-serif;font-weight:700;font-size:.92rem;cursor:pointer;transition:opacity .2s}
+.acbtn:hover{opacity:.9}
+</style>
 </head>
 <body>
-    <!-- TELA DE LOGIN (Oculta inicialmente) -->
-    <div id="loginScreen" class="login-container show">
-        <div class="login-box">
-            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23FF6B35'/%3E%3Ctext x='50' y='60' font-size='50' font-weight='bold' fill='white' text-anchor='middle'%3EAR%3C/text%3E%3C/svg%3E" alt="Logo" class="login-logo">
-            <h1>Açai Rei</h1>
-            <p>Painel de Gestão</p>
-            
-            <form id="loginForm" class="login-form">
-                <div class="form-group">
-                    <label>Usuário:</label>
-                    <input type="text" id="usuario" placeholder="Digite seu usuário" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Senha:</label>
-                    <input type="password" id="senha" placeholder="Digite sua senha" required>
-                </div>
-                
-                <button type="submit" class="btn-login">Entrar</button>
-                <p id="loginError" class="error-message"></p>
-            </form>
-        </div>
+
+<!-- ═══ HERO ═════════════════════════════════════════ -->
+<header class="hero">
+  <div class="hero-c">
+    <span class="crown">👑</span>
+    <h1>Açaí <em>Rei</em></h1>
+    <p class="hero-sub">O melhor açaí de Guriri</p>
+    <div class="chips">
+      <span class="chip">🛵 Entrega rápida</span>
+      <span class="chip">⭐ Premium</span>
+      <span class="chip">🌱 Natural</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ LOJA ══════════════════════════════════════════ -->
+<div class="store-body">
+  <input class="search" id="srch" placeholder="🔍  Buscar no cardápio..." oninput="fsearch(this.value)">
+  <div class="cats" id="catsEl"></div>
+  <div id="menuEl"></div>
+</div>
+
+<!-- ═══ BARRA CARRINHO ════════════════════════════════ -->
+<div class="cbar" id="cbar">
+  <div class="cbar-i">
+    <span class="ccount" id="ccount">0 itens</span>
+    <span class="clabel">no seu pedido</span>
+  </div>
+  <span class="ctotal" id="ctotal">R$ 0,00</span>
+  <button class="ccta" onclick="openCart()">Ver pedido →</button>
+</div>
+
+<!-- ═══ MODAL CARRINHO / CHECKOUT ════════════════════ -->
+<div class="ov" id="cartOv" onclick="closeCM(event)">
+  <div class="panel" id="cartP">
+    <div class="mhead">
+      <h2>Meu Pedido 🛒</h2>
+      <button class="xbtn" onclick="closeCM()">✕</button>
     </div>
 
-    <!-- ÁREA PÚBLICA (Cliente) -->
-    <div id="publicArea" class="public-container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <div class="logo">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23FF6B35'/%3E%3Ctext x='50' y='60' font-size='50' font-weight='bold' fill='white' text-anchor='middle'%3EAR%3C/text%3E%3C/svg%3E" alt="Logo">
-                    <h1>Açai Rei</h1>
-                </div>
-                <button id="carrinhoBtnPublic" class="carrinho-btn">
-                    🛒 Carrinho (<span id="carrinhoCount">0</span>)
-                </button>
-            </div>
-        </header>
+    <!-- Lista de itens -->
+    <div id="citems"></div>
 
-        <!-- Menu de Produtos -->
-        <main class="menu-container">
-            <h2>Nosso Cardápio</h2>
-            <div id="menuLista" class="menu-grid"></div>
-        </main>
+    <!-- Footer (formulário) -->
+    <div id="cfoot" style="display:none">
+      <div class="divl"></div>
 
-        <!-- Modal Carrinho -->
-        <div id="carrinhoModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>Seu Carrinho</h2>
-                <div id="carrinhoItens" class="carrinho-itens"></div>
-                <div class="carrinho-resumo">
-                    <p>Subtotal: R$ <span id="subtotal">0.00</span></p>
-                    <p>Taxa de Entrega: R$ <span id="taxaEntrega">0.00</span></p>
-                    <h3>Total: R$ <span id="totalFinal">0.00</span></h3>
-                </div>
-                <button id="checkoutBtn" class="btn-checkout">Ir para Checkout</button>
-            </div>
+      <!-- Tipo entrega -->
+      <div class="ftit">Tipo de entrega</div>
+      <div class="drow">
+        <button class="db on" id="btnE" onclick="setDT('entrega')">🛵 Entrega</button>
+        <button class="db" id="btnR" onclick="setDT('retirada')">🏃 Retirada</button>
+      </div>
+
+      <!-- Campos Entrega -->
+      <div id="fE">
+        <div class="ftit">Seus dados</div>
+        <input class="fi" id="cN" placeholder="Nome completo *">
+        <input class="fi" id="cPh" placeholder="Telefone/WhatsApp *">
+        <input class="fi" id="cAd" placeholder="Rua/Avenida *">
+        <div class="frow">
+          <input class="fi" id="cNu" placeholder="Número *" style="flex:1">
+          <input class="fi" id="cCo" placeholder="Complemento" style="flex:1.5">
         </div>
+        <input class="fi" id="cBa" placeholder="Bairro *" oninput="calcFee()">
+        <input class="fi" id="cRf" placeholder="Ponto de referência">
+      </div>
 
-        <!-- Modal de Detalhes do Produto -->
-        <div id="produtoModal" class="modal">
-            <div class="modal-content produto-modal">
-                <span class="close">&times;</span>
-                <h2 id="produtoNome"></h2>
-                <p id="produtoDescricao"></p>
-                <p id="produtoPreco"></p>
-                
-                <div class="opcoes-tamanho">
-                    <h4>Tamanho:</h4>
-                    <div id="tamanhos" class="tamanho-grid"></div>
-                </div>
+      <!-- Campos Retirada -->
+      <div id="fR" style="display:none">
+        <div class="ftit">Seus dados</div>
+        <input class="fi" id="cNR" placeholder="Nome completo *">
+        <input class="fi" id="cPR" placeholder="Telefone/WhatsApp *">
+      </div>
 
-                <div class="opcoes-complementos">
-                    <h4>Complementos:</h4>
-                    <div id="complementos" class="complementos-list"></div>
-                </div>
+      <!-- Pagamento -->
+      <div class="ftit">Forma de pagamento</div>
+      <div id="payEl" class="paygrid"></div>
+      <div id="pixbox" style="display:none" class="pixbox">
+        <p>💠 Chave PIX:</p>
+        <strong id="pixKshow">—</strong>
+      </div>
+      <div id="cbrandW" style="display:none">
+        <input class="fi" id="cbrand" placeholder="Bandeira (Visa, Master, Elo...)">
+      </div>
+      <div id="changeW" style="display:none">
+        <input class="fi" id="changef" placeholder="Troco para quanto? (ex: R$ 50,00)">
+      </div>
 
-                <button id="adicionarAoCarrinhoBtn" class="btn-adicionar">Adicionar ao Carrinho</button>
-            </div>
-        </div>
+      <!-- Resumo -->
+      <div class="summ">
+        <div class="srow"><span>Subtotal</span><span id="sSub">R$ 0,00</span></div>
+        <div class="srow" id="feeR" style="display:none"><span>Taxa de entrega</span><span id="sFee">—</span></div>
+        <div class="srow tot"><span>Total</span><span id="sTot">R$ 0,00</span></div>
+      </div>
 
-        <!-- Modal Checkout -->
-        <div id="checkoutModal" class="modal">
-            <div class="modal-content checkout-modal">
-                <span class="close">&times;</span>
-                <h2>Finalize seu Pedido</h2>
-                
-                <form id="checkoutForm" class="checkout-form">
-                    <h3>Tipo de Entrega</h3>
-                    <div class="form-group">
-                        <label>
-                            <input type="radio" name="tipoEntrega" value="entrega" checked> Entrega
-                        </label>
-                        <label>
-                            <input type="radio" name="tipoEntrega" value="retirada"> Retirada
-                        </label>
-                    </div>
-
-                    <h3>Seus Dados</h3>
-                    <div class="form-group">
-                        <label>Nome: *</label>
-                        <input type="text" id="nomeCliente" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Telefone: *</label>
-                        <input type="tel" id="telefoneCliente" required>
-                    </div>
-
-                    <div id="enderecoSection">
-                        <h3>Endereço</h3>
-                        <div class="form-group">
-                            <label>Endereço: *</label>
-                            <input type="text" id="endereco" required>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Número: *</label>
-                                <input type="text" id="numero" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Complemento:</label>
-                                <input type="text" id="complementoEndereco">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Bairro: *</label>
-                            <select id="bairro" required>
-                                <option value="">Selecione um bairro</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Ponto de Referência:</label>
-                            <input type="text" id="pontoRef">
-                        </div>
-                    </div>
-
-                    <h3>Forma de Pagamento</h3>
-                    <div id="formasPagamento" class="formas-pagamento"></div>
-
-                    <button type="submit" class="btn-finalizar">Finalizar Pedido</button>
-                </form>
-            </div>
-        </div>
+      <button class="subbtn" onclick="submitOrder()">📲 Confirmar pedido</button>
+      <p class="onote">Você receberá a confirmação da loja em breve.</p>
     </div>
 
-    <!-- ÁREA ADMINISTRATIVA -->
-    <div id="adminArea" class="admin-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23FF6B35'/%3E%3Ctext x='50' y='60' font-size='50' font-weight='bold' fill='white' text-anchor='middle'%3EAR%3C/text%3E%3C/svg%3E" alt="Logo">
-                <h2>Açai Rei</h2>
-            </div>
-
-            <nav class="sidebar-nav">
-                <button class="nav-btn active" data-section="pedidos">📦 Pedidos</button>
-                <button class="nav-btn" data-section="cardapio">🍽️ Cardápio</button>
-                <button class="nav-btn" data-section="entregas">🚚 Entregas</button>
-                <button class="nav-btn" data-section="vendas">📊 Vendas+</button>
-                <button class="nav-btn" data-section="configuracoes">⚙️ Configurações</button>
-                <button class="nav-btn logout-btn" id="logoutBtn">🚪 Sair</button>
-            </nav>
-        </aside>
-
-        <!-- Conteúdo Principal -->
-        <main class="admin-content">
-            <!-- SEÇÃO: PEDIDOS -->
-            <section id="pedidosSection" class="admin-section show">
-                <h2>Gerenciamento de Pedidos</h2>
-                <div class="pedidos-filtros">
-                    <button class="filtro-btn active" data-filtro="pendente">Pendentes</button>
-                    <button class="filtro-btn" data-filtro="despachado">Despachados</button>
-                    <button class="filtro-btn" data-filtro="concluido">Concluídos</button>
-                </div>
-                <div id="pedidosLista" class="pedidos-lista"></div>
-            </section>
-
-            <!-- SEÇÃO: CARDÁPIO -->
-            <section id="cardapioSection" class="admin-section">
-                <h2>Gerenciamento de Cardápio</h2>
-                <button id="btnAdicionarProduto" class="btn-primary">+ Adicionar Produto</button>
-                <div id="cardapioLista" class="cardapio-lista"></div>
-
-                <!-- Modal Adicionar/Editar Produto -->
-                <div id="produtoFormModal" class="modal">
-                    <div class="modal-content produto-form-modal">
-                        <span class="close">&times;</span>
-                        <h2 id="produtoFormTitulo">Adicionar Produto</h2>
-                        
-                        <form id="produtoForm" class="form-produto">
-                            <div class="form-group">
-                                <label>Nome do Produto: *</label>
-                                <input type="text" id="formProdutoNome" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Descrição:</label>
-                                <textarea id="formProdutoDescricao"></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Preço Base: *</label>
-                                <input type="number" id="formProdutoPreco" step="0.01" required>
-                            </div>
-
-                            <h4>Tamanhos</h4>
-                            <div id="tamanhosList" class="tamanhos-list"></div>
-                            <button type="button" id="btnAdicionarTamanho" class="btn-secondary">+ Adicionar Tamanho</button>
-
-                            <h4>Complementos</h4>
-                            <div id="complementosList" class="complementos-list-admin"></div>
-                            <button type="button" id="btnAdicionarComplemento" class="btn-secondary">+ Adicionar Complemento</button>
-
-                            <button type="submit" class="btn-primary">Salvar Produto</button>
-                        </form>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SEÇÃO: ENTREGAS -->
-            <section id="entregasSection" class="admin-section">
-                <h2>Configurar Taxas de Entrega por Bairro</h2>
-                <button id="btnAdicionarBairro" class="btn-primary">+ Adicionar Bairro</button>
-                <div id="bairrosList" class="bairros-lista"></div>
-
-                <!-- Modal Adicionar Bairro -->
-                <div id="bairroFormModal" class="modal">
-                    <div class="modal-content">
-                        <span class="close">&times;</span>
-                        <h2>Adicionar Bairro</h2>
-                        
-                        <form id="bairroForm" class="form-bairro">
-                            <div class="form-group">
-                                <label>Nome do Bairro: *</label>
-                                <input type="text" id="formBairroNome" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Taxa de Entrega: *</label>
-                                <input type="number" id="formBairroTaxa" step="0.01" required>
-                            </div>
-
-                            <button type="submit" class="btn-primary">Salvar Bairro</button>
-                        </form>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SEÇÃO: VENDAS -->
-            <section id="vendasSection" class="admin-section">
-                <h2>Relatório de Vendas</h2>
-                <div class="vendas-filtros">
-                    <label>De:</label>
-                    <input type="date" id="dataInicio">
-                    <label>Até:</label>
-                    <input type="date" id="dataFim">
-                    <button id="btnFiltrarVendas" class="btn-primary">Filtrar</button>
-                </div>
-
-                <div id="vendasResumo" class="vendas-resumo">
-                    <div class="card">
-                        <h4>Total de Vendas</h4>
-                        <p class="valor">R$ <span id="totalVendas">0.00</span></p>
-                    </div>
-                    <div class="card">
-                        <h4>Total de Pedidos</h4>
-                        <p class="valor"><span id="totalPedidos">0</span></p>
-                    </div>
-                    <div class="card">
-                        <h4>Ticket Médio</h4>
-                        <p class="valor">R$ <span id="ticketMedio">0.00</span></p>
-                    </div>
-                </div>
-
-                <h3>Produtos Mais Vendidos</h3>
-                <div id="produtosMaisVendidos" class="tabela-vendas"></div>
-            </section>
-
-            <!-- SEÇÃO: CONFIGURAÇÕES -->
-            <section id="configuracoes" class="admin-section">
-                <div class="config-tabs">
-                    <button class="config-tab-btn active" data-tab="pagamentos">💳 Pagamentos</button>
-                    <button class="config-tab-btn" data-tab="impressao">🖨️ Impressão</button>
-                    <button class="config-tab-btn" data-tab="desenvolvimento">🔧 Desenvolvimento</button>
-                </div>
-
-                <!-- Tab: Pagamentos -->
-                <div id="pagamentosTab" class="config-tab show">
-                    <h3>Formas de Pagamento</h3>
-                    
-                    <div class="forma-pagamento">
-                        <h4>💰 Dinheiro / Pagar na Entrega</h4>
-                        <label>
-                            <input type="checkbox" class="forma-check" data-forma="pagar_entrega" checked>
-                            Ativar
-                        </label>
-                    </div>
-
-                    <div class="forma-pagamento">
-                        <h4>💳 Cartão de Débito</h4>
-                        <label>
-                            <input type="checkbox" class="forma-check" data-forma="debito">
-                            Ativar
-                        </label>
-                    </div>
-
-                    <div class="forma-pagamento">
-                        <h4>💳 Cartão de Crédito</h4>
-                        <label>
-                            <input type="checkbox" class="forma-check" data-forma="credito">
-                            Ativar
-                        </label>
-                    </div>
-
-                    <div class="forma-pagamento">
-                        <h4>🏷️ Vale Alimentação</h4>
-                        <label>
-                            <input type="checkbox" class="forma-check" data-forma="vale">
-                            Ativar
-                        </label>
-                    </div>
-
-                    <div class="forma-pagamento">
-                        <h4>📱 PIX</h4>
-                        <label>
-                            <input type="checkbox" class="forma-check" data-forma="pix" checked>
-                            Ativar
-                        </label>
-                        <div id="pixConfig" class="pix-config">
-                            <label>Chave PIX:</label>
-                            <input type="text" id="pixChave" placeholder="Ex: 123.456.789-00 ou seu email">
-                            <button id="btnSalvarPix" class="btn-primary">Salvar PIX</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab: Impressão -->
-                <div id="impressaoTab" class="config-tab">
-                    <h3>Configurações de Impressão</h3>
-                    
-                    <h4>Configurações Gerais</h4>
-                    <div class="config-item">
-                        <label>
-                            <input type="checkbox" id="aprovacaoAutomatica">
-                            Aprovar pedidos automaticamente
-                        </label>
-                    </div>
-                    <div class="config-item">
-                        <label>
-                            <input type="checkbox" id="impressaoAutomatica">
-                            Imprimir pedidos automaticamente
-                        </label>
-                    </div>
-                    <div class="config-item" id="momentoImpressaoDiv" style="display:none;">
-                        <label>Imprimir quando:</label>
-                        <select id="momentoImpressao">
-                            <option value="aprovacao">Na aprovação do pedido</option>
-                            <option value="recebimento">No recebimento do pedido</option>
-                        </select>
-                    </div>
-
-                    <h4>Suas Impressoras</h4>
-                    <button id="btnAdicionarImpressora" class="btn-primary">+ Adicionar Impressora</button>
-                    <div id="impressorasList" class="impressoras-lista"></div>
-
-                    <!-- Modal Adicionar Impressora -->
-                    <div id="impressoraFormModal" class="modal">
-                        <div class="modal-content">
-                            <span class="close">&times;</span>
-                            <h2>Adicionar Impressora</h2>
-                            
-                            <form id="impressoraForm" class="form-impressora">
-                                <div class="form-group">
-                                    <label>Nome da Impressora:</label>
-                                    <select id="formImpressoraDispositivo" required>
-                                        <option value="">Selecione uma impressora conectada</option>
-                                    </select>
-                                    <button type="button" id="btnAtualizarDispositivos" class="btn-secondary">Atualizar Lista</button>
-                                </div>
-
-                                <h4>Configurações Padrão</h4>
-                                <div class="form-group">
-                                    <label>Tipo de Corte:</label>
-                                    <select id="formTipoCorte">
-                                        <option value="completo">Corte Completo</option>
-                                        <option value="parcial">Corte Parcial</option>
-                                        <option value="nenhum">Nenhum</option>
-                                    </select>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Largura da Bobina (mm):</label>
-                                    <input type="number" id="formLarguraBobina" value="80">
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Caracteres por Linha:</label>
-                                    <input type="number" id="formCaracteresPorLinha" value="41">
-                                </div>
-
-                                <button type="submit" class="btn-primary">Adicionar Impressora</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab: Desenvolvimento -->
-                <div id="desenvolvimentoTab" class="config-tab">
-                    <h3>🔧 Em Desenvolvimento</h3>
-                    <p>Novas funcionalidades em breve!</p>
-                </div>
-            </section>
-        </main>
+    <!-- Vazio -->
+    <div id="cempty" class="cempty">
+      <span>🍇</span>
+      <p>Seu carrinho está vazio</p>
     </div>
+  </div>
+</div>
 
-    <!-- Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
-    <script src="script.js"></script>
+<!-- ═══ MODAL ITEM (CUSTOMIZAÇÃO) ════════════════════ -->
+<div class="ov" id="itemOv" onclick="closeIM(event)">
+  <div class="panel ipanel" style="position:relative" id="itemP">
+    <button class="xabs" onclick="closeIM()">✕</button>
+    <div id="iContent"></div>
+  </div>
+</div>
+
+<!-- ═══ FIREBASE + LÓGICA ════════════════════════════ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyDSeXtsug9G9MtpHy-eGSX_ZWfCBzpq_6c",
+  authDomain: "acairei-5e9c8.firebaseapp.com",
+  projectId: "acairei-5e9c8",
+  storageBucket: "acairei-5e9c8.firebasestorage.app",
+  messagingSenderId: "772500377171",
+  appId: "1:772500377171:web:9ea0dd48dcf8b0f88bc0a6",
+  databaseURL: "https://acairei-5e9c8-default-rtdb.firebaseio.com"
+});
+const db = getDatabase(app);
+
+// ── STATE ──────────────────────────────────────────────────
+let menu = {}, cart = {}, fees = {}, settings = {};
+let dT = 'entrega', selPay = null;
+
+// ── LISTENERS ─────────────────────────────────────────────
+onValue(ref(db, 'menu'), s => { menu = s.val() || {}; renderMenu(); });
+onValue(ref(db, 'neighborhoods'), s => {
+  fees = {};
+  Object.values(s.val() || {}).forEach(n => fees[norm(n.name)] = n.fee);
+});
+onValue(ref(db, 'settings'), s => {
+  settings = s.val() || {};
+  renderPay();
+});
+
+// ── RENDER CARDÁPIO ────────────────────────────────────────
+function renderMenu() {
+  const me = document.getElementById('menuEl');
+  const ce = document.getElementById('catsEl');
+  me.innerHTML = '';
+  ce.innerHTML = '<button class="catb on" onclick="fcat(\'all\',this)">Todos</button>';
+
+  const sorted = Object.entries(menu).sort((a, b) => (a[1].order || 0) - (b[1].order || 0));
+
+  sorted.forEach(([cid, cat]) => {
+    const its = Object.entries(cat.items || {}).filter(([, i]) => i.available !== false);
+    if (!its.length) return;
+
+    // botão categoria
+    const cb = document.createElement('button');
+    cb.className = 'catb';
+    cb.textContent = (cat.emoji || '') + ' ' + cat.name;
+    cb.onclick = () => fcat(cid, cb);
+    ce.appendChild(cb);
+
+    // seção
+    const sec = document.createElement('div');
+    sec.className = 'msec'; sec.id = 'c-' + cid;
+    sec.innerHTML = `<h2 class="sec-title">${cat.emoji || ''} ${cat.name}</h2>`;
+
+    const grid = document.createElement('div');
+    grid.className = 'pgrid';
+
+    its.forEach(([iid, item]) => {
+      const hv = item.sizes && item.sizes.length > 0;
+      const bp = hv ? Math.min(...item.sizes.map(s => s.price)) : (item.basePrice || 0);
+
+      const card = document.createElement('div');
+      card.className = 'pcard';
+      card.onclick = () => openItem(cid, iid, item);
+      card.innerHTML = `
+        <div class="pemoji">${item.emoji || '🍇'}</div>
+        <div class="pinfo">
+          <div class="pname">${item.name}</div>
+          <div class="pdesc">${item.desc || ''}</div>
+          <div class="pfoot">
+            <span class="pprice">${hv ? 'A partir de ' : ''}${fmt(bp)}</span>
+            <button class="addb" onclick="event.stopPropagation();qAdd('${cid}','${iid}')">+</button>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
+
+    sec.appendChild(grid);
+    me.appendChild(sec);
+  });
+}
+
+window.fcat = function (cid, btn) {
+  document.querySelectorAll('.catb').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.msec').forEach(s => {
+    s.style.display = (cid === 'all' || s.id === 'c-' + cid) ? '' : 'none';
+  });
+};
+
+window.fsearch = function (q) {
+  const l = q.toLowerCase();
+  document.querySelectorAll('.pcard').forEach(c => {
+    c.style.display = c.querySelector('.pname').textContent.toLowerCase().includes(l) ? '' : 'none';
+  });
+};
+
+// ── ITEM MODAL ─────────────────────────────────────────────
+function openItem(cid, iid, item) {
+  const hv = item.sizes && item.sizes.length > 0;
+  const ads = item.addons || [];
+
+  let h = `<div class="ihero">${item.emoji || '🍇'}</div>
+  <div class="idet">
+    <div class="iname">${item.name}</div>
+    <div class="idesc">${item.desc || ''}</div>`;
+
+  if (hv) {
+    h += `<div class="otit">Tamanho <span class="req">*</span></div><div class="szlist">`;
+    item.sizes.forEach((s, i) => {
+      h += `<label class="szopt">
+        <input type="radio" name="sz" value="${i}" ${i === 0 ? 'checked' : ''}>
+        <div class="orow"><span>${s.name}</span><span class="oprice">${fmt(s.price)}</span></div>
+      </label>`;
+    });
+    h += `</div>`;
+  }
+
+  ads.forEach((g, gi) => {
+    h += `<div class="otit">${g.name} ${g.required ? '<span class="req">*</span>' : '<span class="optlab">opcional</span>'}</div>`;
+    if (g.max > 1) h += `<div class="ghint">Escolha até ${g.max} opções</div>`;
+    h += `<div class="adlist">`;
+    g.options.forEach((o, oi) => {
+      const t = g.max > 1 ? 'checkbox' : 'radio';
+      h += `<label class="adopt">
+        <input type="${t}" name="ag${gi}" value="${oi}">
+        <div class="orow">
+          <span>${o.name}</span>
+          ${o.price > 0 ? `<span class="oprice">+${fmt(o.price)}</span>` : ''}
+        </div>
+      </label>`;
+    });
+    h += `</div>`;
+  });
+
+  h += `<div class="iqrow">
+    <div class="qctrl">
+      <button onclick="iQ(-1)">−</button>
+      <span id="iQv">1</span>
+      <button onclick="iQ(1)">+</button>
+    </div>
+    <button class="acbtn" onclick="addFM('${cid}','${iid}')">
+      Adicionar — <span id="iP">${fmt(hv ? item.sizes[0].price : item.basePrice || 0)}</span>
+    </button>
+  </div></div>`;
+
+  document.getElementById('iContent').innerHTML = h;
+  document.getElementById('itemOv').classList.add('on');
+  document.getElementById('iContent').addEventListener('change', () => upIP(item));
+}
+
+function upIP(item) {
+  let p = 0;
+  const sr = document.querySelector('input[name="sz"]:checked');
+  p += sr ? item.sizes[+sr.value].price : (item.basePrice || 0);
+  (item.addons || []).forEach((g, gi) => {
+    document.querySelectorAll(`input[name="ag${gi}"]:checked`).forEach(el => p += g.options[+el.value].price || 0);
+  });
+  const q = +document.getElementById('iQv').textContent;
+  document.getElementById('iP').textContent = fmt(p * q);
+  document.getElementById('iQv').dataset.up = p;
+}
+
+window.iQ = function (d) {
+  const el = document.getElementById('iQv');
+  const nv = Math.max(1, (+el.textContent) + d);
+  el.textContent = nv;
+  const up = +el.dataset.up || 0;
+  if (up) document.getElementById('iP').textContent = fmt(up * nv);
+};
+
+window.addFM = function (cid, iid) {
+  const item = menu[cid]?.items?.[iid];
+  if (!item) return;
+  const qty = +document.getElementById('iQv').textContent || 1;
+  const sr = document.querySelector('input[name="sz"]:checked');
+  const sz = (sr && item.sizes) ? item.sizes[+sr.value] : null;
+  const adds = [];
+  (item.addons || []).forEach((g, gi) => {
+    document.querySelectorAll(`input[name="ag${gi}"]:checked`).forEach(el => adds.push({ ...g.options[+el.value] }));
+  });
+  const up = (sz ? sz.price : item.basePrice || 0) + adds.reduce((s, a) => s + (a.price || 0), 0);
+  const key = iid + '_' + (sz?.name || 'base') + '_' + adds.map(a => a.name).join(',');
+  if (cart[key]) cart[key].qty += qty;
+  else cart[key] = { item, size: sz, addons: adds, qty, up };
+  closeIM();
+  upBar();
+};
+
+window.qAdd = function (cid, iid) {
+  const item = menu[cid]?.items?.[iid];
+  if (!item) return;
+  if (item.sizes?.length || item.addons?.length) { openItem(cid, iid, item); return; }
+  const key = iid + '_base';
+  if (cart[key]) cart[key].qty++;
+  else cart[key] = { item, size: null, addons: [], qty: 1, up: item.basePrice || 0 };
+  upBar();
+};
+
+window.closeIM = function (e) {
+  if (e && e.target !== document.getElementById('itemOv')) return;
+  document.getElementById('itemOv').classList.remove('on');
+};
+
+// ── CARRINHO ───────────────────────────────────────────────
+function csub() { return Object.values(cart).reduce((s, e) => s + e.up * e.qty, 0); }
+
+function upBar() {
+  const qty = Object.values(cart).reduce((s, e) => s + e.qty, 0);
+  document.getElementById('ccount').textContent = qty + ' ' + (qty === 1 ? 'item' : 'itens');
+  document.getElementById('ctotal').textContent = fmt(csub());
+  document.getElementById('cbar').classList.toggle('on', qty > 0);
+}
+
+window.openCart = function () { renderCI(); document.getElementById('cartOv').classList.add('on'); };
+window.closeCM = function (e) {
+  if (e && e.target !== document.getElementById('cartOv')) return;
+  document.getElementById('cartOv').classList.remove('on');
+};
+
+function renderCI() {
+  const el = document.getElementById('citems');
+  const ft = document.getElementById('cfoot');
+  const em = document.getElementById('cempty');
+  const ks = Object.keys(cart);
+
+  if (!ks.length) { el.innerHTML = ''; ft.style.display = 'none'; em.style.display = 'flex'; return; }
+
+  em.style.display = 'none';
+  ft.style.display = 'block';
+  el.innerHTML = ks.map(k => {
+    const e = cart[k];
+    return `<div class="ci">
+      <div class="ci-info">
+        <span class="ci-name">${e.item.emoji || ''} ${e.item.name}</span>
+        ${e.size ? `<span class="ci-sub">${e.size.name}</span>` : ''}
+        ${e.addons.length ? `<span class="ci-sub">${e.addons.map(a => a.name).join(', ')}</span>` : ''}
+      </div>
+      <div class="ci-right">
+        <div class="qm">
+          <button onclick="cQ('${k}',-1)">−</button>
+          <span>${e.qty}</span>
+          <button onclick="cQ('${k}',1)">+</button>
+        </div>
+        <span class="ci-price">${fmt(e.up * e.qty)}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  renderPay();
+  calcFee();
+  upSum();
+}
+
+window.cQ = function (k, d) {
+  cart[k].qty = Math.max(0, cart[k].qty + d);
+  if (!cart[k].qty) delete cart[k];
+  upBar();
+  renderCI();
+};
+
+window.setDT = function (t) {
+  dT = t;
+  document.getElementById('btnE').classList.toggle('on', t === 'entrega');
+  document.getElementById('btnR').classList.toggle('on', t === 'retirada');
+  document.getElementById('fE').style.display = t === 'entrega' ? '' : 'none';
+  document.getElementById('fR').style.display = t === 'retirada' ? '' : 'none';
+  document.getElementById('feeR').style.display = t === 'entrega' ? '' : 'none';
+  upSum();
+};
+
+window.calcFee = function () {
+  if (dT !== 'entrega') { upSum(); return; }
+  const b = gv('cBa');
+  const fee = b ? (fees[norm(b)] ?? null) : null;
+  const fe = document.getElementById('sFee');
+  if (fee !== null) {
+    fe.textContent = fmt(fee);
+    document.getElementById('feeR').style.display = '';
+  } else {
+    fe.textContent = b ? 'Bairro não cadastrado' : '—';
+    document.getElementById('feeR').style.display = b ? '' : 'none';
+  }
+  upSum(fee || 0);
+};
+
+function upSum(fee) {
+  const sub = csub();
+  document.getElementById('sSub').textContent = fmt(sub);
+  if (fee === undefined)
+    fee = parseFloat((document.getElementById('sFee').textContent || '0').replace('R$', '').replace(',', '.')) || 0;
+  document.getElementById('sTot').textContent = fmt(sub + (dT === 'entrega' ? fee : 0));
+}
+
+function renderPay() {
+  const c = document.getElementById('payEl'); if (!c) return;
+  const ms = { pix: '💠 PIX', credito: '💳 Crédito', debito: '💳 Débito', vr: '🎫 Vale', dinheiro: '💵 Dinheiro' };
+  c.innerHTML = '';
+  Object.entries(ms).forEach(([k, l]) => {
+    if (!settings?.paymentMethods?.[k]) return;
+    const b = document.createElement('button');
+    b.className = 'po' + (selPay === k ? ' on' : '');
+    b.textContent = l;
+    b.onclick = () => selP(k, b);
+    c.appendChild(b);
+  });
+}
+
+function selP(k, btn) {
+  selPay = k;
+  document.querySelectorAll('.po').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('pixbox').style.display = k === 'pix' ? '' : 'none';
+  document.getElementById('pixKshow').textContent = settings?.pixKey || '—';
+  document.getElementById('cbrandW').style.display = (k === 'credito' || k === 'debito') ? '' : 'none';
+  document.getElementById('changeW').style.display = k === 'dinheiro' ? '' : 'none';
+}
+
+// ── ENVIO PEDIDO ───────────────────────────────────────────
+window.submitOrder = async function () {
+  let name, phone, addr = null, num = null, comp = null, neigh = null, pref = null;
+
+  if (dT === 'entrega') {
+    name = gv('cN'); phone = gv('cPh'); addr = gv('cAd');
+    num = gv('cNu'); neigh = gv('cBa'); comp = gv('cCo'); pref = gv('cRf');
+    if (!name || !phone || !addr || !num || !neigh) {
+      alert('Preencha todos os campos obrigatórios marcados com *');
+      return;
+    }
+  } else {
+    name = gv('cNR'); phone = gv('cPR');
+    if (!name || !phone) { alert('Preencha nome e telefone.'); return; }
+  }
+
+  if (!selPay) { alert('Selecione a forma de pagamento.'); return; }
+  if (!Object.keys(cart).length) { alert('Carrinho vazio.'); return; }
+
+  const bFee = dT === 'entrega' ? (fees[norm(neigh || '')] || 0) : 0;
+  const sub = csub();
+
+  await push(ref(db, 'orders'), {
+    status: 'pendente',
+    type: dT,
+    createdAt: Date.now(),
+    client: { name, phone, address: addr, number: num, complement: comp, neighborhood: neigh, ref: pref },
+    items: Object.values(cart).map(e => ({
+      name: e.item.name,
+      emoji: e.item.emoji || '',
+      size: e.size?.name || null,
+      sizePrice: e.size?.price || e.item.basePrice || 0,
+      addons: e.addons,
+      qty: e.qty,
+      unitPrice: e.up,
+      total: e.up * e.qty,
+    })),
+    payment: { method: selPay, cardBrand: gv('cbrand'), change: gv('changef') },
+    subtotal: sub,
+    deliveryFee: bFee,
+    total: sub + bFee,
+  });
+
+  cart = {};
+  upBar();
+  document.getElementById('cartOv').classList.remove('on');
+  alert('✅ Pedido enviado! Aguarde a confirmação da loja.');
+};
+
+// ── HELPERS ────────────────────────────────────────────────
+function fmt(v) { return 'R$ ' + (+v || 0).toFixed(2).replace('.', ','); }
+function gv(id) { return document.getElementById(id)?.value?.trim() || ''; }
+function norm(s) { return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim(); }
+</script>
 </body>
-  </html>
+</html>
