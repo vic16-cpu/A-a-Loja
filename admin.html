@@ -206,6 +206,16 @@ input:checked+.tsl::before{transform:translateX(20px);background:#fff}
 .prrow strong{color:var(--tx);font-size:.9rem;display:block}
 .prrow small{color:var(--mu);font-size:.77rem}
 .epr{color:var(--mu);font-size:.83rem;padding:12px 0}
+.img-upload-area{margin-bottom:8px}
+.img-upload-btn{background:var(--bg);border:2px dashed var(--al);border-radius:10px;padding:20px;text-align:center;cursor:pointer;color:var(--mu);display:flex;flex-direction:column;gap:4px;transition:border-color .2s}
+.img-upload-btn:hover{border-color:var(--tx);color:var(--tx)}
+.img-upload-btn span:first-child{font-size:2rem}
+.img-upload-btn span:last-child{font-size:.88rem;font-weight:600}
+.img-upload-btn small{font-size:.75rem}
+.img-preview{position:relative;border-radius:10px;overflow:hidden;margin-bottom:8px}
+.img-preview img{width:100%;height:180px;object-fit:cover;display:block;border-radius:10px}
+.img-remove{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.65);color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:.78rem;cursor:pointer;font-family:"Sora",sans-serif}
+.img-uploading{text-align:center;color:var(--mu);font-size:.85rem;padding:12px}
 .devcard{background:var(--sf2);border:1px solid var(--bd);border-radius:16px;padding:40px 32px;text-align:center}
 .devi{font-size:3rem;margin-bottom:16px}
 .devcard h3{font-size:1.2rem;color:var(--tx);margin-bottom:8px}
@@ -400,7 +410,22 @@ input:checked+.tsl::before{transform:translateX(20px);background:#fff}
       <select class="ami" id="pCat"><option value="">Selecione a categoria</option></select>
       <input class="ami" id="pName" placeholder="Nome do item *">
       <textarea class="ami" id="pDesc" placeholder="Descrição" rows="2"></textarea>
-      <input class="ami" id="pEmoji" placeholder="Emoji (ex: 🍇)">
+      <input class="ami" id="pEmoji" placeholder="Emoji (ex: 🍇) — usado se não tiver foto">
+      <div class="pst">Foto do produto</div>
+      <div class="img-upload-area" id="imgUploadArea">
+        <div id="imgPreview" class="img-preview" style="display:none">
+          <img id="imgPreviewEl" src="" alt="Preview">
+          <button type="button" class="img-remove" onclick="removeImg()">✕ Remover foto</button>
+        </div>
+        <div id="imgUploadBtn" class="img-upload-btn" onclick="document.getElementById('imgFileInput').click()">
+          <span>📷</span>
+          <span>Clique para adicionar foto</span>
+          <small>JPG, PNG ou WEBP — máx 5MB</small>
+        </div>
+        <input type="file" id="imgFileInput" accept="image/*" style="display:none" onchange="uploadImgCloudinary(this)">
+        <div id="imgUploading" class="img-uploading" style="display:none">⏳ Enviando imagem...</div>
+      </div>
+      <input type="hidden" id="pImgUrl" value="">
       <div class="pst">Tamanhos / Variações</div>
       <div class="phint">Se não tiver tamanhos, deixe em branco e preencha o preço base abaixo</div>
       <div id="szCont"></div>
@@ -667,7 +692,7 @@ function renderMenuAdmin(){
       <div class="itable">
         ${its.length?its.map(([iid,it])=>`
           <div class="irow ${it.available===false?'una':''}">
-            <span class="iemoji">${it.emoji||'🍇'}</span>
+            ${it.imgUrl?`<img src="${it.imgUrl}" style="width:40px;height:40px;object-fit:cover;border-radius:8px;flex-shrink:0">`:'<span class="iemoji">'+( it.emoji||'🍇')+'</span>'}
             <div class="irinfo">
               <strong>${it.name}</strong>
               <small>${it.desc||''}</small>
@@ -711,13 +736,14 @@ window.delCat=async function(cid){if(!confirm('Remover categoria e todos seus it
 // PROD CRUD
 window.openPM=function(cid=null,iid=null){
   editProdCat=cid;editProdId=iid;
-  document.getElementById('szCont').innerHTML='';document.getElementById('agCont').innerHTML='';
+  document.getElementById('szCont').innerHTML='';document.getElementById('agCont').innerHTML='';document.getElementById('pImgUrl').value='';document.getElementById('imgPreviewEl').src='';document.getElementById('imgPreview').style.display='none';document.getElementById('imgUploadBtn').style.display='flex';
   document.getElementById('pmTit').textContent=iid?'Editar Item':'Novo Item';
   if(cid&&iid&&allMenu[cid]?.items?.[iid]){
     const it=allMenu[cid].items[iid];
     document.getElementById('pName').value=it.name;document.getElementById('pDesc').value=it.desc||'';
     document.getElementById('pEmoji').value=it.emoji||'';document.getElementById('pCat').value=cid;
     document.getElementById('pBase').value=it.basePrice||'';document.getElementById('pAvail').checked=it.available!==false;
+    if(it.imgUrl){document.getElementById('pImgUrl').value=it.imgUrl;document.getElementById('imgPreviewEl').src=it.imgUrl;document.getElementById('imgPreview').style.display='block';document.getElementById('imgUploadBtn').style.display='none';}
     (it.sizes||[]).forEach(s=>addSzRow(s.name,s.price));
     (it.addons||[]).forEach(g=>addAGrp(g));
   }else{
@@ -755,6 +781,48 @@ window.addAOpt=function(cid,n='',p='',el=null){
   d.innerHTML=`<input class="ami f1" placeholder="Nome do complemento" value="${n}" data-f="on"><input class="ami w100" placeholder="Preço extra" type="number" step="0.01" value="${p}" data-f="op"><button class="ib danger" onclick="this.parentElement.remove()">🗑️</button>`;
   c.appendChild(d);
 };
+// ── IMGBB IMAGE UPLOAD ───────────────────────────────────
+const IMGBB_KEY = 'ad07d29b122634ef4be110c16cebf33a';
+
+window.uploadImgCloudinary = async function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) { alert('Imagem muito grande! Máximo 10MB.'); return; }
+
+  document.getElementById('imgUploading').style.display = 'block';
+  document.getElementById('imgUploadBtn').style.display = 'none';
+  document.getElementById('imgPreview').style.display = 'none';
+
+  const fd = new FormData();
+  fd.append('image', file);
+
+  try {
+    const res = await fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_KEY, { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.success && data.data?.url) {
+      document.getElementById('pImgUrl').value = data.data.url;
+      document.getElementById('imgPreviewEl').src = data.data.url;
+      document.getElementById('imgPreview').style.display = 'block';
+      document.getElementById('imgUploadBtn').style.display = 'none';
+    } else {
+      throw new Error('Erro no upload da imagem');
+    }
+  } catch(e) {
+    alert('Erro ao enviar imagem: ' + e.message);
+    document.getElementById('imgUploadBtn').style.display = 'flex';
+  } finally {
+    document.getElementById('imgUploading').style.display = 'none';
+    input.value = '';
+  }
+};
+
+window.removeImg = function() {
+  document.getElementById('pImgUrl').value = '';
+  document.getElementById('imgPreviewEl').src = '';
+  document.getElementById('imgPreview').style.display = 'none';
+  document.getElementById('imgUploadBtn').style.display = 'flex';
+};
+
 window.saveProd=async function(){
   const cid=document.getElementById('pCat').value,n=document.getElementById('pName').value.trim();
   if(!cid||!n){alert('Selecione categoria e informe o nome.');return;}
@@ -770,7 +838,7 @@ window.saveProd=async function(){
     g.querySelectorAll('.aor').forEach(r=>{const on=r.querySelector('[data-f="on"]').value.trim(),op=parseFloat(r.querySelector('[data-f="op"]').value)||0;if(on)opts.push({name:on,price:op});});
     if(gn&&opts.length)addons.push({name:gn,max:mx,required:rq,options:opts});
   });
-  const data={name:n,desc:document.getElementById('pDesc').value.trim(),emoji:document.getElementById('pEmoji').value.trim(),sizes,addons,basePrice:parseFloat(document.getElementById('pBase').value)||0,available:document.getElementById('pAvail').checked};
+  const imgUrl=document.getElementById('pImgUrl').value.trim();const data={name:n,desc:document.getElementById('pDesc').value.trim(),emoji:document.getElementById('pEmoji').value.trim(),imgUrl:imgUrl||null,sizes,addons,basePrice:parseFloat(document.getElementById('pBase').value)||0,available:document.getElementById('pAvail').checked};
   const base=`menu/${cid}/items`;
   if(editProdId&&editProdCat===cid)await set(ref(db,`${base}/${editProdId}`),data);
   else await push(ref(db,base),data);
