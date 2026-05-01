@@ -471,25 +471,22 @@ window.doLogin=async function(){
   const p1=document.getElementById('lp1').value;
   const p2=document.getElementById('lp2').value;
   if(!u||!p1||!p2){showErr('Preencha todos os campos.');return;}
+  const CU=await sha256('açai rei');
+  const CP1=await sha256('17091224');
+  const CP2=await sha256('AçaiReiDeGuriri');
   const uh=await sha256(u.toLowerCase());
-  const h1=await sha256(p1);const h2=await sha256(p2);
-  const snap=await get(ref(db,'auth'));
-  let auth=snap.val();
-  if(!auth){
-    // seed initial credentials
-    const su=await sha256('açai rei');const sp1=await sha256('17091224');const sp2=await sha256('açaireideguriri');
-    await set(ref(db,'auth'),{u:su,p1:sp1,p2:sp2});
-    showErr('Configuração inicial criada. Tente novamente.');return;
-  }
-  if(uh===auth.u&&h1===auth.p1&&h2===auth.p2){
+  const h1=await sha256(p1);
+  const h2=await sha256(p2);
+  if(uh===CU&&h1===CP1&&h2===CP2){
     attempts=0;
+    try{const snap=await get(ref(db,'auth'));if(!snap.val())await set(ref(db,'auth'),{u:CU,p1:CP1,p2:CP2});}catch(e){}
     sessionStorage.setItem('ar_ok','1');
     sessionStorage.setItem('ar_exp',String(Date.now()+8*3600000));
     showAdmin();
   }else{
     attempts++;
     if(attempts>=5){lockUntil=Date.now()+30000;showLock(30);attempts=0;}
-    else showErr(`Credenciais inválidas. Tentativa ${attempts}/5`);
+    else showErr('Credenciais inválidas. Tentativa '+attempts+'/5');
   }
 };
 function showErr(m){const e=document.getElementById('lerr');e.textContent=m;e.style.display='block';}
@@ -900,4 +897,4 @@ function payLab(m){return{pix:'💠 PIX',credito:'💳 Crédito',debito:'💳 D�
 if(checkSession())showAdmin();
 </script>
 </body>
-  </html>
+</html>
